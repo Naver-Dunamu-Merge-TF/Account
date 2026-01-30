@@ -28,7 +28,7 @@ public class KRWAccountHistory {
     @Column(name = "transaction_type", nullable = false)
     private TransactionType transactionType;
 
-    // 금액은 null일 수 없음 , 음수 불가
+    // 금액은 null일 수 없음
     @Column(nullable = false)
     private Long amount;
 
