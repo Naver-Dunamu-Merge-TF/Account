@@ -3,11 +3,17 @@ package com.example.cryptoorder.Account.entity;
 import com.example.cryptoorder.Account.constant.TransactionType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Getter
+@NoArgsConstructor
+@Table(name = "krw_account_histories")
 public class KRWAccountHistory {
 
     // 추후 수평 확장시 계정별로 거래기록 관련 프로세스가 특정 DB로 가도록 보장하는 로직 추가 필요

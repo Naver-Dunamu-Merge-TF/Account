@@ -13,6 +13,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor(access=AccessLevel.PROTECTED)
+@Table(name="naver_point_histories")
 public class NaverPointHistory {
 
     @Id
@@ -21,14 +22,13 @@ public class NaverPointHistory {
     @Column(columnDefinition = "BINARY(16)")
     private UUID pointHistoryId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
+    @ManyToOne(fetch = FetchType.LAZY)
     // 식별관계인 계정의 PK를 외래키로 참조
     private Account account;
 
     //포인트 적립 일시
     @CreationTimestamp
-    private LocalDateTime AccrualDate;
+    private LocalDateTime accrualDate;
 
     @NotNull
     private int amount;

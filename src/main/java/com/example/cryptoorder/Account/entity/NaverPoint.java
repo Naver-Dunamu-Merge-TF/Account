@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name="naver_points")
 public class NaverPoint {
     @Id
     @OneToOne(fetch = FetchType.LAZY)
