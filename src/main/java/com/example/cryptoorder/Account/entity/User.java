@@ -8,6 +8,8 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -37,6 +39,10 @@ public class User {
     @Column(nullable = false)
     @Pattern(regexp = "^010-\\d{4}-\\d{4}$")
     private String phoneNumber;
+
+    //계좌 리스트
+    @OneToMany(mappedBy = "user")
+    private List<KRWAccount> krwAccounts = new ArrayList<>();
 
     /**
      * 편의 메서드: UUID를 HEX 문자열(32자)로 변환하여 반환

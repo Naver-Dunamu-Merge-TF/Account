@@ -28,7 +28,7 @@ public class KRWAccountHistory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "account_id")
-    private KRWAccountBalance bankAccount;
+    private KRWAccount bankAccount;
 
     // String 대신 Enum 사용 (오타 방지, 타입 안전성)
     @Enumerated(EnumType.STRING)
@@ -54,7 +54,7 @@ public class KRWAccountHistory {
     private LocalDateTime createdAt;
 
     // 생성자 (검토 필요)
-    public KRWAccountHistory(KRWAccountBalance bankAccount, KRWTransaction transaction,
+    public KRWAccountHistory(KRWAccount bankAccount, KRWTransaction transaction,
                              TransactionType type, Long amount, Long balanceAfter) {
         this.bankAccount = bankAccount;
         this.transaction = transaction;

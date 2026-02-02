@@ -23,8 +23,7 @@ public class SecurityConfig {
         // Bcrypt 설정 (Strength 10~12 권장)
         encoders.put("bcrypt", new BCryptPasswordEncoder());
 
-        // 추후 컴플라이언스 기준에 맞춰서 암호화 강화 필요 시 Argon2로 전환 가능
-        //encoders.put("argon2", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
+        // 추후 컴플라이언스 기준에 맞춰서 암호화 강화 필요 시 전환 가능
 
         return new DelegatingPasswordEncoder(idForEncode, encoders);
     }
