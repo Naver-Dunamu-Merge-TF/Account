@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import jakarta.validation.constraints.Pattern;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Table(name="users")
 public class User {
     @Id
-    @GeneratedValue(strategy= GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
     //공간 절약과 인덱스 성능 향상을 위해서 BINARY(16)으로 컬럼 타입 설정
     @Column(name="user_uuid",columnDefinition = "BINARY(16)")
     private UUID id;
