@@ -3,8 +3,7 @@ package com.example.cryptoorder.Account.entity;
 import com.example.cryptoorder.Account.constant.TransactionType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Check;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -12,7 +11,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Table(name = "krw_account_histories")
 public class KRWAccountHistory {
 

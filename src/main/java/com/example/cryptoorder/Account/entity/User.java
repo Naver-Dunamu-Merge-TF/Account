@@ -1,8 +1,7 @@
 package com.example.cryptoorder.Account.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.annotations.UuidGenerator;
@@ -13,7 +12,9 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Table(name="users")
 public class User {
     @Id
