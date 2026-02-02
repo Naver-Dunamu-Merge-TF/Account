@@ -2,12 +2,12 @@ package com.example.cryptoorder.Account.entity;
 
 import com.example.cryptoorder.Account.constant.TransactionStatus;
 import com.example.cryptoorder.Account.constant.TransactionType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import io.hypersistence.utils.hibernate.id.Tsid;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,11 @@ import java.time.LocalDateTime;
 @Table(name="krw_transactions")
 public class KRWTransaction {
     @Id
-    private String transactionId;
+    @Tsid
+    private Long transactionId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User relatedUserId;
 
     private String sender;
 

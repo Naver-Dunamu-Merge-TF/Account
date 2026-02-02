@@ -3,6 +3,7 @@ package com.example.cryptoorder.Account.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @Table(name="accounts")
+@ToString(exclude = "userLoginPw")
 public class Account {
 
     @Id

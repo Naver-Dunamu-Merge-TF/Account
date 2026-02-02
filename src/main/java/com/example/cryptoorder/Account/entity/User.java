@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ public class User {
     private String userName;
 
     @Column(nullable = false)
-    private String userAge;
+    private LocalDate userAge;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -35,6 +36,17 @@ public class User {
     @Column(nullable = false)
     @Pattern(regexp = "^010-\\d{4}-\\d{4}$")
     private String phoneNumber;
+
+    /**
+     * 편의 메서드: UUID를 HEX 문자열(32자)로 변환하여 반환
+     * DB 컬럼이 아니므로 별도 어노테이션 불필요
+     * JSON으로 나갈 때 "userHexId"라는 필드로 자동 포함됨 (Jackson 라이브러리 특성)
+     */
+    public String getUserHexId() {
+        if (this.id == null) return null;
+        // UUID의 - 기호를 제거하면 HEX 포맷과 동일합니다.
+        return this.id.toString().replace("-", "");
+    }
 
 
 

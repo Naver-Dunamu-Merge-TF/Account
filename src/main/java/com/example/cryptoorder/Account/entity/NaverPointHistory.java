@@ -31,7 +31,7 @@ public class NaverPointHistory {
     private LocalDateTime accrualDate;
 
     @NotNull
-    private int amount;
+    private Long amount;
 
     @NotNull
     //포인트 적립 사유
