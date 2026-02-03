@@ -58,4 +58,27 @@ public class KRWAccount{
         this.isActive = true;
     }
 
+    /**
+     * 입금 처리
+     */
+    public void deposit(Long amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("입금액은 0보다 커야 합니다.");
+        }
+        this.balance += amount;
+    }
+
+    /**
+     * 출금 처리
+     */
+    public void withdraw(Long amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("출금액은 0보다 커야 합니다.");
+        }
+        if (this.balance < amount) {
+            throw new IllegalStateException("잔액이 부족합니다.");
+        }
+        this.balance -= amount;
+    }
+
 }
