@@ -55,6 +55,34 @@ public class BankAccountService {
 
     }
 
+    /**
+     * 출금
+     */
+    @Transactional
+    public KRWAccountHistory withdraw(UUID KRWaccountId, Long amount, String receiver) {
+        // 1. 비관적 락을 사용하여 계좌 조회
+        KRWAccount account = accountRepository.findByIdWithLock(KRWaccountId)
+                .orElseThrow(() -> new IllegalArgumentException("계좌를 찾을 수 없습니다!"));
+
+        // 2. 잔고 감소 (KRWAccount 엔티티의 withdraw 메서드에서 잔액 부족 체크 수행)
+        account.withdraw(amount);
+
+        // 3. 거래 기록 생성(KRWTransaction)
+        KRWTransaction transaction = KRWTransaction.builder()
+                .sender(account.getAccountNumber()) // 출금 시 보내는 사람은 본인 계좌 번호
+                .receiver(receiver)                 // 받는 사람 (외부 계좌 등)
+                .amount(amount)
+                .status(TransactionStatus.COMPLETED)
+                .transactionType(TransactionType.WITHDRAW)
+                .relatedUserId(account.getUser())
+                .build();
+        transactionRepository.save(transaction);
+
+        // 4. 계좌 기록 저장
+        KRWAccountHistory transactionAccountHistory = createAccountHistory(account, transaction, TransactionType.WITHDRAW, amount);
+        return accountHistoryRepository.save(transactionAccountHistory);
+    }
+
 
 
     // 계좌 기록 생성 메서드
