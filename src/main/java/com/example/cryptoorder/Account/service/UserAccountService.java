@@ -91,6 +91,30 @@ public class UserAccountService {
 
     }
 
+    /**
+     * 로그인 (ID/PW 검증 후 User 반환)
+     */
+    @Transactional(readOnly = true)
+    public User login(String loginId, String password) {
+        // 1. 아이디로 계정 조회
+        Account account = accountRepository.findByUserLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디입니다."));
+
+        // 2. 비밀번호 검증 (입력받은 비밀번호와 암호화된 비밀번호 비교)
+        if (!passwordEncoder.matches(password, account.getUserLoginPw())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // 3. 탈퇴한 회원인지 확인 (선택 사항)
+        User user = account.getUser();
+        if (!user.isActive()) {
+            throw new IllegalStateException("탈퇴한 사용자입니다.");
+        }
+
+        // 4. 검증 완료된 사용자 객체 반환
+        return user;
+    }
+
     private boolean haveBalance (List<KRWAccount> accounts){
         for (KRWAccount account : accounts){
             if (account.getBalance() > 0) {
