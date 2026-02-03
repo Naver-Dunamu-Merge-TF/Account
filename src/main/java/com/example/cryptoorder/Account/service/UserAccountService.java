@@ -62,7 +62,7 @@ public class UserAccountService {
 
     //회원 탈퇴
     @Transactional(rollbackFor = Exception.class)
-    public void deleteUser(UUID userId) {
+    public User deleteUser(UUID userId) {
         // 1. 사용자 존재 여부 조회
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found!"));
 
@@ -86,6 +86,8 @@ public class UserAccountService {
 
         // 5. User 삭제
         user.closeUser();
+
+        return user;
 
     }
 
