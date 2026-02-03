@@ -44,6 +44,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<KRWAccount> krwAccounts = new ArrayList<>();
 
+    @Column(nullable = false)
+    private boolean isActive;
+
     /**
      * 편의 메서드: UUID를 HEX 문자열(32자)로 변환하여 반환
      * DB 컬럼이 아니므로 별도 어노테이션 불필요
@@ -53,6 +56,11 @@ public class User {
         if (this.id == null) return null;
         // UUID의 - 기호를 제거하면 HEX 포맷과 동일합니다.
         return this.id.toString().replace("-", "");
+    }
+
+    public boolean closeUser() {
+        this.isActive = false;
+        return this.isActive;
     }
 
 

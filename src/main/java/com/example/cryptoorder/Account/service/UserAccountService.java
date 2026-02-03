@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -74,7 +75,17 @@ public class UserAccountService {
         // 3. 계좌 비활성화
         deactivateAllAccounts(userKRWAccounts);
 
-        //
+        // 사용자 계정 조회
+        Optional<Account> userAccount = accountRepository.findByUser(user);
+
+        // 4. NaverPoint 지갑 존재하면 삭제
+        if(userAccount.isPresent()){
+            UUID accountId = userAccount.get().getId();
+            naverPointRepository.findById(accountId).ifPresent(NaverPoint::closeAccount);
+        }
+
+        // 5. User 삭제
+        user.closeUser();
 
     }
 
