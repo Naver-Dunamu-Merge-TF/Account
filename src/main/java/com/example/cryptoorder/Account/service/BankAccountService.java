@@ -35,7 +35,8 @@ public class BankAccountService {
 
         //2. 잔고 증가
         account.deposit(amount);
-
+        // 명시적으로 계좌 잔고 업데이트 추가
+        accountRepository.save(account);
         //3. 거래 기록 생성(KRWTeansaction)
         // 추후 DTO 생성시 DTO로 로직 이전
         // 추후 실패 에러 발생시 예외 설정하여 상태에 반영해서 저장하는 로직 추가 필요

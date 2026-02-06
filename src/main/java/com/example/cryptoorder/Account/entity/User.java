@@ -42,6 +42,7 @@ public class User {
 
     // 계좌 리스트
     @OneToMany(mappedBy = "user")
+    @Builder.Default
     private List<KRWAccount> krwAccounts = new ArrayList<>();
 
     @Column(nullable = false)
