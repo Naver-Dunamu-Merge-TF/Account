@@ -6,8 +6,6 @@ import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -23,19 +21,28 @@ public class KRWTransaction {
     private Long transactionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "related_user_id", nullable = false)
     private User relatedUserId;
 
+    @Column(nullable = false)
     private String sender;
 
+    @Column(nullable = false)
     private String receiver;
 
+    @Column(nullable = false)
     private Long amount;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TransactionStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TransactionType transactionType;
 
     @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDateTime transactionDate;
 
 

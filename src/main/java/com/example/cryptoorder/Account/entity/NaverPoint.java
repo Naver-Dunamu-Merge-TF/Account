@@ -17,7 +17,7 @@ import java.util.UUID;
 public class NaverPoint {
 
     @Id
-    @Column(name= "account_id")
+    @Column(name= "account_id", columnDefinition = "BINARY(16)")
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -28,10 +28,14 @@ public class NaverPoint {
     private Account account;
 
     @NotNull
-    private Long balance;
+    @Column(nullable = false)
+    @Builder.Default
+    private Long balance = 0L;
 
     @NotNull
-    private boolean isActive;
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isActive = true;
 
     @UpdateTimestamp
     private LocalDateTime updateTime;
@@ -41,8 +45,8 @@ public class NaverPoint {
      * 잔액이 남아있다면 예외를 발생시키거나, 별도 처리를 강제할 수 있음
      */
     public void closeAccount() {
-        if (this.balance > 0) {
-            throw new IllegalStateException("포인트 잔액이 남아있는 계좌는 해지할 수 없습니다.");
+        if (this.balance == null || this.balance != 0) {
+            throw new IllegalStateException("포인트 잔액이 0원이 아닌 계좌는 해지할 수 없습니다.");
         }
         this.isActive = false;
         // 필요하다면 해지 시점 기록 등을 여기서 추가 수행

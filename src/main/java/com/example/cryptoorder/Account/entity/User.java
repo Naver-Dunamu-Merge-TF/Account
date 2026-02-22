@@ -1,9 +1,9 @@
 package com.example.cryptoorder.Account.entity;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import jakarta.validation.constraints.Pattern;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
@@ -33,14 +33,14 @@ public class User {
     private LocalDate userAge;
 
     @CreationTimestamp
-    @Column(updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
     @Pattern(regexp = "^010-\\d{4}-\\d{4}$")
     private String phoneNumber;
 
-    // 계좌 리스트
+    //계좌 리스트
     @OneToMany(mappedBy = "user")
     @Builder.Default
     private List<KRWAccount> krwAccounts = new ArrayList<>();

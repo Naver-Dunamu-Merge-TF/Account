@@ -29,9 +29,23 @@ public class BankAccountService {
      */
     @Transactional
     public KRWAccountHistory deposit(UUID KRWaccountId, Long amount, String sender) {
+        if (KRWaccountId == null) {
+            throw new IllegalArgumentException("계좌 ID는 필수입니다.");
+        }
+        if (amount == null) {
+            throw new IllegalArgumentException("입금액은 필수입니다.");
+        }
+        if (sender == null || sender.isBlank()) {
+            throw new IllegalArgumentException("입금자 정보는 필수입니다.");
+        }
+
         //1. 비관적 락을 사용하여 계좌 조회
         KRWAccount account = accountRepository.findByIdWithLock(KRWaccountId)
                 .orElseThrow(()->new IllegalArgumentException("계좌를 찾을 수 없습니다!"));
+
+        if (!account.getUser().isActive()) {
+            throw new IllegalStateException("비활성화된 사용자 계좌입니다.");
+        }
 
         //2. 잔고 증가
         account.deposit(amount);
@@ -61,9 +75,23 @@ public class BankAccountService {
      */
     @Transactional
     public KRWAccountHistory withdraw(UUID KRWaccountId, Long amount, String receiver) {
+        if (KRWaccountId == null) {
+            throw new IllegalArgumentException("계좌 ID는 필수입니다.");
+        }
+        if (amount == null) {
+            throw new IllegalArgumentException("출금액은 필수입니다.");
+        }
+        if (receiver == null || receiver.isBlank()) {
+            throw new IllegalArgumentException("출금 대상 정보는 필수입니다.");
+        }
+
         // 1. 비관적 락을 사용하여 계좌 조회
         KRWAccount account = accountRepository.findByIdWithLock(KRWaccountId)
                 .orElseThrow(() -> new IllegalArgumentException("계좌를 찾을 수 없습니다!"));
+
+        if (!account.getUser().isActive()) {
+            throw new IllegalStateException("비활성화된 사용자 계좌입니다.");
+        }
 
         // 2. 잔고 감소 (KRWAccount 엔티티의 withdraw 메서드에서 잔액 부족 체크 수행)
         account.withdraw(amount);
@@ -101,4 +129,3 @@ public class BankAccountService {
     }
 
 }
-

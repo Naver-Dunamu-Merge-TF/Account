@@ -24,17 +24,21 @@ public class NaverPointHistory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     // 식별관계인 계정의 PK를 외래키로 참조
+    @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
     //포인트 적립 일시
     @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDateTime accrualDate;
 
     @NotNull
+    @Column(nullable = false)
     private Long amount;
 
     @NotNull
     //포인트 적립 사유
+    @Column(nullable = false)
     private String reason;
 
 

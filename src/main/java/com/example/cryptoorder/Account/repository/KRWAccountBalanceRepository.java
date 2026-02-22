@@ -1,12 +1,14 @@
 package com.example.cryptoorder.Account.repository;
 
 import com.example.cryptoorder.Account.entity.KRWAccount;
+import com.example.cryptoorder.Account.entity.User;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,4 +17,10 @@ public interface KRWAccountBalanceRepository extends JpaRepository<KRWAccount, U
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select k from KRWAccount k where k.id = :id")
     Optional<KRWAccount> findByIdWithLock(@Param("id") UUID id);
+
+    List<KRWAccount> findAllByUser(User user);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select k from KRWAccount k where k.user = :user")
+    List<KRWAccount> findAllByUserWithLock(@Param("user") User user);
 }

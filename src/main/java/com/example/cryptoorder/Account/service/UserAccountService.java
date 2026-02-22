@@ -9,6 +9,7 @@ import com.example.cryptoorder.Account.repository.KRWAccountBalanceRepository;
 import com.example.cryptoorder.Account.repository.NaverPointRepository;
 import com.example.cryptoorder.Account.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,11 +35,18 @@ public class UserAccountService {
     //회원 가입
     @Transactional(rollbackFor = Exception.class)
     public User createFullAccount(String name, String phone, LocalDate age, String loginId, String password) {
+        validateCreateAccountInput(name, phone, age, loginId, password);
+
+        if (accountRepository.existsByUserLoginId(loginId)) {
+            throw new IllegalArgumentException("이미 사용 중인 로그인 아이디입니다.");
+        }
+
         // 1. User 생성
         User newUser = User.builder()
                         .userName(name)
                         .phoneNumber(phone)
                         .userAge(age)
+                        .isActive(true)
                         .build();
         userRepository.save(newUser);
 
@@ -48,12 +56,17 @@ public class UserAccountService {
                 .userLoginId(loginId)
                 .userLoginPw(passwordEncoder.encode(password))
                 .build();
-        accountRepository.save(newAccount);
+        try {
+            accountRepository.saveAndFlush(newAccount);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("이미 사용 중인 로그인 아이디입니다.");
+        }
 
         // 3. 포인트 지갑 생성
         NaverPoint newPoint = NaverPoint.builder()
                 .account(newAccount)
                 .balance(0L)
+                .isActive(true)
                 .build();
         naverPointRepository.save(newPoint);
 
@@ -66,9 +79,13 @@ public class UserAccountService {
         // 1. 사용자 존재 여부 조회
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found!"));
 
-        List<KRWAccount> userKRWAccounts = user.getKrwAccounts();
+        if (!user.isActive()) {
+            throw new IllegalStateException("이미 탈퇴 처리된 사용자입니다.");
+        }
+
+        List<KRWAccount> userKRWAccounts = krwRepository.findAllByUserWithLock(user);
         // 2. 잔액 여부 조회
-        if(haveBalance(userKRWAccounts)){
+        if(hasNonZeroBalance(userKRWAccounts)){
             throw new IllegalStateException("Cannot delete user with non-zero balance in KRW accounts.");
         }
 
@@ -115,9 +132,35 @@ public class UserAccountService {
         return user;
     }
 
-    private boolean haveBalance (List<KRWAccount> accounts){
+    private void validateCreateAccountInput(String name, String phone, LocalDate age, String loginId, String password) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("이름은 필수입니다.");
+        }
+
+        if (phone == null || phone.isBlank()) {
+            throw new IllegalArgumentException("휴대폰 번호는 필수입니다.");
+        }
+        if (!phone.matches("^010-\\d{4}-\\d{4}$")) {
+            throw new IllegalArgumentException("휴대폰 번호 형식이 올바르지 않습니다. (010-1234-5678)");
+        }
+
+        if (age == null || age.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("유효한 생년월일을 입력해주세요.");
+        }
+
+        if (loginId == null || loginId.isBlank()) {
+            throw new IllegalArgumentException("로그인 아이디는 필수입니다.");
+        }
+
+        if (password == null || password.length() < 8) {
+            throw new IllegalArgumentException("비밀번호는 8자 이상이어야 합니다.");
+        }
+    }
+
+    private boolean hasNonZeroBalance(List<KRWAccount> accounts){
         for (KRWAccount account : accounts){
-            if (account.getBalance() > 0) {
+            Long balance = account.getBalance();
+            if (balance == null || balance != 0L) {
                 return true;
             }
         }

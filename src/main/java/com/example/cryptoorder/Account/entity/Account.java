@@ -2,7 +2,6 @@ package com.example.cryptoorder.Account.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
 
@@ -24,10 +23,11 @@ public class Account {
     //1대1 관계이므로 Unique 제약조건 설정
     //유저를 부모로 두고 계정을 자식으로 두는 식별관계
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(unique = true)
+    @JoinColumn(name = "account_id", nullable = false, unique = true)
     @MapsId
     private User user;
 
+    @Column(nullable = false, unique = true)
     private String userLoginId;
 
     //추후에 비밀번호 관련 검증 로직 추가 필요

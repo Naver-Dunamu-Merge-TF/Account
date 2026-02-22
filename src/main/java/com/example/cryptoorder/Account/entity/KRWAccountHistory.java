@@ -6,7 +6,6 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -24,11 +23,11 @@ public class KRWAccountHistory {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transaction_id")
+    @JoinColumn(name = "transaction_id", nullable = false)
     private KRWTransaction transaction;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name= "account_id")
+    @JoinColumn(name= "account_id", nullable = false)
     private KRWAccount bankAccount;
 
     // String 대신 Enum 사용 (오타 방지, 타입 안전성)
@@ -37,6 +36,7 @@ public class KRWAccountHistory {
     private TransactionType transactionType;
 
     // 금액은 null일 수 없음
+    @PositiveOrZero
     @Column(nullable = false)
     private Long amount;
 
@@ -45,7 +45,7 @@ public class KRWAccountHistory {
     @PositiveOrZero
     // DB레벨에서 음수로 저장되는 것 방지
     // 잔고 부족 메세지 전파되도록 추후에 예외처리 로직 추가 필요
-    @Check(constraints = "amount >= 0")
+    @Check(constraints = "balance_after_transaction >= 0")
     @Column(name = "balance_after_transaction", nullable = false)
     private Long balanceAfterTransaction;
 

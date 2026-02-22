@@ -14,4 +14,6 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     // 로그인 아이디로 계정 조회 메서드 추가
     Optional<Account> findByUserLoginId(String userLoginId);
 
+    boolean existsByUserLoginId(String userLoginId);
+
 }
