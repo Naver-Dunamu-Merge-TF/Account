@@ -24,4 +24,8 @@ public class CustodyProvisionProperties {
     private String serviceToken;
 
     private String serviceTokenHeader = "X-Service-Token";
+
+    private int connectTimeoutMillis = 2_000;
+
+    private int readTimeoutMillis = 5_000;
 }

@@ -41,7 +41,7 @@ public class RefreshTokenService {
 
     @Transactional
     public User rotate(String plainToken) {
-        RefreshToken token = refreshTokenRepository.findByTokenHashAndRevokedFalse(hash(plainToken))
+        RefreshToken token = refreshTokenRepository.findByTokenHashAndRevokedFalseForUpdate(hash(plainToken))
                 .orElseThrow(() -> new UnauthorizedException("유효하지 않은 refresh token입니다."));
 
         if (token.isExpired(LocalDateTime.now())) {

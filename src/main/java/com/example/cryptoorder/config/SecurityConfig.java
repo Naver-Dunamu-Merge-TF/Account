@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,7 +33,9 @@ public class SecurityConfig {
                                 writeSecurityError(response, objectMapper, HttpStatus.UNAUTHORIZED, "인증이 필요합니다.", request.getRequestURI()))
                         .accessDeniedHandler((request, response, accessDeniedException) ->
                                 writeSecurityError(response, objectMapper, HttpStatus.FORBIDDEN, "접근 권한이 없습니다.", request.getRequestURI())))
-                .httpBasic(Customizer.withDefaults());
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable);
         return http.build();
     }
 

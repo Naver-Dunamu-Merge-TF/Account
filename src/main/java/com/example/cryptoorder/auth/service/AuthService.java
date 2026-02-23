@@ -11,6 +11,7 @@ import com.example.cryptoorder.auth.dto.AuthSignupRequest;
 import com.example.cryptoorder.auth.security.JwtTokenService;
 import com.example.cryptoorder.common.api.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,25 +25,37 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final CustodyProvisionClient custodyProvisionClient;
     private final AuthServerProperties authServerProperties;
+    private final PasswordEncoder passwordEncoder;
 
-    @Transactional(rollbackFor = Exception.class)
     public TokenPair signup(AuthSignupRequest request) {
         String provider = resolveProvider(request.provider());
+        User user;
+        Account account;
 
-        User user = userAccountService.createFullAccount(
-                request.name(),
-                request.phone(),
-                request.birthDate(),
-                request.loginId(),
-                request.password(),
-                provider,
-                request.externalUserId()
-        );
+        try {
+            user = userAccountService.createFullAccount(
+                    request.name(),
+                    request.phone(),
+                    request.birthDate(),
+                    request.loginId(),
+                    request.password(),
+                    provider,
+                    request.externalUserId()
+            );
+
+            account = accountRepository.findByUser(user)
+                    .orElseThrow(() -> new IllegalStateException("계정 정보를 찾을 수 없습니다."));
+        } catch (IllegalArgumentException e) {
+            if (!isDuplicateLoginIdException(e)) {
+                throw e;
+            }
+            account = accountRepository.findByUserLoginId(request.loginId())
+                    .orElseThrow(() -> e);
+            validateSignupRetry(account, request, provider);
+            user = account.getUser();
+        }
 
         custodyProvisionClient.provisionWallet(user.getId(), provider, request.externalUserId());
-
-        Account account = accountRepository.findByUser(user)
-                .orElseThrow(() -> new IllegalStateException("계정 정보를 찾을 수 없습니다."));
 
         return issueTokenPair(user, account);
     }
@@ -62,6 +75,10 @@ public class AuthService {
     @Transactional
     public TokenPair refresh(AuthRefreshRequest request) {
         User user = refreshTokenService.rotate(request.refreshToken());
+        if (!user.isActive()) {
+            throw new UnauthorizedException("탈퇴한 사용자입니다.");
+        }
+
         Account account = accountRepository.findByUser(user)
                 .orElseThrow(() -> new IllegalStateException("계정 정보를 찾을 수 없습니다."));
         return issueTokenPair(user, account);
@@ -89,5 +106,26 @@ public class AuthService {
             return "MEMBER";
         }
         return provider;
+    }
+
+    private boolean isDuplicateLoginIdException(IllegalArgumentException e) {
+        return e.getMessage() != null && e.getMessage().contains("이미 사용 중인 로그인 아이디");
+    }
+
+    private void validateSignupRetry(Account account, AuthSignupRequest request, String provider) {
+        if (!passwordEncoder.matches(request.password(), account.getUserLoginPw())) {
+            throw new IllegalArgumentException("이미 사용 중인 로그인 아이디입니다.");
+        }
+
+        if (!provider.equals(account.getAuthProvider())) {
+            throw new IllegalArgumentException("이미 사용 중인 로그인 아이디입니다.");
+        }
+
+        String requestExternalUserId = request.externalUserId();
+        String existingExternalUserId = account.getExternalUserId();
+        if (requestExternalUserId != null && existingExternalUserId != null
+                && !requestExternalUserId.equals(existingExternalUserId)) {
+            throw new IllegalArgumentException("이미 사용 중인 로그인 아이디입니다.");
+        }
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 @Import(GlobalExceptionHandlerTest.TestErrorController.class)
 class GlobalExceptionHandlerTest {
@@ -44,11 +46,27 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.path").value("/test/errors/illegal-argument"));
     }
 
+    @Test
+    @WithMockUser(username = "tester")
+    void upstreamServiceException_returns503() throws Exception {
+        mockMvc.perform(get("/test/errors/upstream").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service Unavailable"))
+                .andExpect(jsonPath("$.message").value("외부 서비스 호출 실패"))
+                .andExpect(jsonPath("$.path").value("/test/errors/upstream"));
+    }
+
     @RestController
     static class TestErrorController {
         @GetMapping("/test/errors/illegal-argument")
         public String throwIllegalArgument() {
             throw new IllegalArgumentException("요청 파라미터가 잘못되었습니다.");
+        }
+
+        @GetMapping("/test/errors/upstream")
+        public String throwUpstream() {
+            throw new UpstreamServiceException("외부 서비스 호출 실패");
         }
     }
 }
