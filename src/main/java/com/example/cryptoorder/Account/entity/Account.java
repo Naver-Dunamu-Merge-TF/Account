@@ -15,7 +15,7 @@ import java.util.UUID;
 public class Account {
 
     @Id
-    @Column(name="account_id", columnDefinition = "BINARY(16)")
+    @Column(name="account_id")
     private UUID id;
 
     //User 클래스의 사용자 내부식별ID를 외래키로 참조

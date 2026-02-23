@@ -18,8 +18,7 @@ public class NaverPointHistory {
 
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
-    //공간 절약과 인덱스 성능 향상을 위해서 BINARY(16)으로 컬럼 타입 설정
-    @Column(columnDefinition = "BINARY(16)")
+    @Column(name = "point_history_id")
     private UUID pointHistoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)

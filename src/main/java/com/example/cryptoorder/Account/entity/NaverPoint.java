@@ -17,7 +17,7 @@ import java.util.UUID;
 public class NaverPoint {
 
     @Id
-    @Column(name= "account_id", columnDefinition = "BINARY(16)")
+    @Column(name= "account_id")
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)

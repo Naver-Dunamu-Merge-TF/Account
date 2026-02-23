@@ -21,9 +21,7 @@ import java.util.UUID;
 public class User {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)
-    // 공간 절약과 인덱스 성능 향상을 위해서 BINARY(16)으로 컬럼 타입 설정
-    // DB툴에서 조회시 SELECT HEX(user_uuid), user_name FROM users;와 같이 HEX함수를 사용하여 조회 필요
-    @Column(name = "user_uuid", columnDefinition = "BINARY(16)")
+    @Column(name="user_uuid")
     private UUID id;
 
     @Column(nullable = false)
@@ -51,7 +49,6 @@ public class User {
 
     /**
      * 편의 메서드: UUID를 HEX 문자열(32자)로 변환하여 반환
-     * DB 컬럼이 아니므로 별도 어노테이션 불필요
      * JSON으로 나갈 때 "userHexId"라는 필드로 자동 포함됨 (Jackson 라이브러리 특성)
      */
     public String getUserHexId() {

@@ -19,8 +19,7 @@ public class KRWAccount{
 
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
-    //공간 절약과 인덱스 성능 향상을 위해서 BINARY(16)으로 컬럼 타입 설정
-    @Column(name="account_id",columnDefinition = "BINARY(16)")
+    @Column(name="account_id")
     //내부 계좌 관리 id (외부에 노출되지 않음)
     private UUID id;
 

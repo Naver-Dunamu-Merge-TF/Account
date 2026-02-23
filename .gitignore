@@ -37,4 +37,14 @@ out/
 .vscode/
 
 ### ignore application.properties ###
-application.properties
+**/application.properties
+!**/application.properties.example
+
+### dotenv ###
+.env
+.env.*
+!.env.example
+
+### local key files ###
+server/keys/*.pem
+!server/keys/*.pem.example
