@@ -35,11 +35,26 @@ public class UserAccountService {
     //회원 가입
     @Transactional(rollbackFor = Exception.class)
     public User createFullAccount(String name, String phone, LocalDate age, String loginId, String password) {
+        return createFullAccount(name, phone, age, loginId, password, "MEMBER", null);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public User createFullAccount(
+            String name,
+            String phone,
+            LocalDate age,
+            String loginId,
+            String password,
+            String authProvider,
+            String externalUserId
+    ) {
         validateCreateAccountInput(name, phone, age, loginId, password);
 
         if (accountRepository.existsByUserLoginId(loginId)) {
             throw new IllegalArgumentException("이미 사용 중인 로그인 아이디입니다.");
         }
+
+        String resolvedProvider = (authProvider == null || authProvider.isBlank()) ? "MEMBER" : authProvider;
 
         // 1. User 생성
         User newUser = User.builder()
@@ -55,6 +70,8 @@ public class UserAccountService {
                 .user(newUser)
                 .userLoginId(loginId)
                 .userLoginPw(passwordEncoder.encode(password))
+                .authProvider(resolvedProvider)
+                .externalUserId(externalUserId)
                 .build();
         try {
             accountRepository.saveAndFlush(newAccount);

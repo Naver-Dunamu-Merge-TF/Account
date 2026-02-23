@@ -34,5 +34,11 @@ public class Account {
     @Column(nullable = false)
     private String userLoginPw;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private String authProvider = "MEMBER";
+
+    @Column
+    private String externalUserId;
 
 }
