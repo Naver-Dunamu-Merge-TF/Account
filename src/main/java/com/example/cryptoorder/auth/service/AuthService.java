@@ -10,6 +10,7 @@ import com.example.cryptoorder.auth.dto.AuthRefreshRequest;
 import com.example.cryptoorder.auth.dto.AuthSignupRequest;
 import com.example.cryptoorder.auth.security.JwtTokenService;
 import com.example.cryptoorder.common.api.UnauthorizedException;
+import com.example.cryptoorder.integration.walletcreate.WalletCreateOutboxService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class AuthService {
     private final JwtTokenService jwtTokenService;
     private final RefreshTokenService refreshTokenService;
     private final CustodyProvisionClient custodyProvisionClient;
+    private final WalletCreateOutboxService walletCreateOutboxService;
     private final AuthServerProperties authServerProperties;
     private final PasswordEncoder passwordEncoder;
 
@@ -55,7 +57,11 @@ public class AuthService {
             user = account.getUser();
         }
 
-        custodyProvisionClient.provisionWallet(user.getId(), provider, request.externalUserId());
+        if (walletCreateOutboxService.isEnabled()) {
+            walletCreateOutboxService.enqueue(user.getId(), provider, request.externalUserId());
+        } else {
+            custodyProvisionClient.provisionWallet(user.getId(), provider, request.externalUserId());
+        }
 
         return issueTokenPair(user, account);
     }

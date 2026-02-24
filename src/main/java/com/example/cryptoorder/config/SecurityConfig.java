@@ -2,6 +2,7 @@ package com.example.cryptoorder.config;
 
 import com.example.cryptoorder.common.api.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -26,7 +27,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/.well-known/jwks.json", "/h2-console/**", "/actuator/health").permitAll()
+                        .requestMatchers("/auth/**", "/api/auth/**", "/.well-known/jwks.json", "/h2-console/**").permitAll()
+                        .requestMatchers(EndpointRequest.to("health", "info", "prometheus")).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) ->
