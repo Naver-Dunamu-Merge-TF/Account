@@ -36,9 +36,9 @@ class UserAccountServiceTest {
 
     @Mock private UserRepository userRepository;
     @Mock private AccountRepository accountRepository;
+    @Mock private KRWAccountBalanceRepository krwRepository;
     @Mock private NaverPointRepository naverPointRepository;
     @Mock private PasswordEncoder passwordEncoder;
-    // KRWAccountBalanceRepository는 createFullAccount에서 사용되지 않으므로 mock 제외 가능
 
     @Test
     @DisplayName("회원가입 성공 시 User, Account, Point 지갑이 모두 생성되어야 한다")
@@ -56,7 +56,7 @@ class UserAccountServiceTest {
         // 1. User 저장 호출 검증
         verify(userRepository, times(1)).save(any(User.class));
         // 2. Account 저장 호출 검증 (비밀번호 암호화 확인 포함)
-        verify(accountRepository, times(1)).save(any(Account.class));
+        verify(accountRepository, times(1)).saveAndFlush(any(Account.class));
         // 3. NaverPoint 저장 호출 검증
         verify(naverPointRepository, times(1)).save(any(NaverPoint.class));
     }
@@ -75,6 +75,7 @@ class UserAccountServiceTest {
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(richUser));
+        when(krwRepository.findAllByUserWithLock(richUser)).thenReturn(List.of(richAccount));
 
         // when & then
         assertThatThrownBy(() -> userAccountService.deleteUser(userId))

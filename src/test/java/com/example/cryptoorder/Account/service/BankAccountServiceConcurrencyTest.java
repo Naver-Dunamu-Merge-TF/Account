@@ -1,12 +1,15 @@
 package com.example.cryptoorder.Account.service;
 
 import com.example.cryptoorder.Account.entity.KRWAccount;
+import com.example.cryptoorder.Account.entity.User;
 import com.example.cryptoorder.Account.repository.KRWAccountBalanceRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -16,10 +19,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class BankAccountServiceConcurrencyTest {
 
     @Autowired
     private BankAccountService bankAccountService;
+
+    @Autowired
+    private UserAccountService userAccountService;
 
     @Autowired
     private KRWAccountBalanceRepository accountRepository;
@@ -29,8 +36,11 @@ class BankAccountServiceConcurrencyTest {
     void depositConcurrencyTest() throws InterruptedException {
         // given
         // 테스트용 계좌 생성 및 저장 (초기 잔액 0원)
+        User user = createUser("deposit");
         KRWAccount account = KRWAccount.builder()
-                .accountNumber("123-456")
+                .user(user)
+                .accountNumber("DEPOSIT-" + UUID.randomUUID())
+                .ownerName("입금테스터")
                 .balance(0L)
                 .isActive(true)
                 .build();
@@ -69,8 +79,11 @@ class BankAccountServiceConcurrencyTest {
     void withdrawConcurrencyTest() throws InterruptedException {
         // given
         // 1. 초기 잔액 10,000원 설정
+        User user = createUser("withdraw");
         KRWAccount account = KRWAccount.builder()
-                .accountNumber("999-999")
+                .user(user)
+                .accountNumber("WITHDRAW-" + UUID.randomUUID())
+                .ownerName("출금테스터")
                 .balance(10_000L) // 1만원
                 .isActive(true)
                 .build();
@@ -113,5 +126,16 @@ class BankAccountServiceConcurrencyTest {
         // 2. 횟수 검증: 5번 성공, 5번 실패(잔액부족)
         assertThat(successCount.get()).isEqualTo(5);
         assertThat(failCount.get()).isEqualTo(5);
+    }
+
+    private User createUser(String suffix) {
+        String loginId = "concurrency-" + suffix + "-" + UUID.randomUUID().toString().substring(0, 8);
+        return userAccountService.createFullAccount(
+                "동시성테스터",
+                "010-1234-5678",
+                LocalDate.of(1990, 1, 1),
+                loginId,
+                "password123"
+        );
     }
 }

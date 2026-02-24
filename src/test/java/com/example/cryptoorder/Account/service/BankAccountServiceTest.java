@@ -1,6 +1,7 @@
 package com.example.cryptoorder.Account.service;
 
 import com.example.cryptoorder.Account.entity.KRWAccount;
+import com.example.cryptoorder.Account.entity.User;
 import com.example.cryptoorder.Account.repository.KRWAccountBalanceRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,8 +30,14 @@ public class BankAccountServiceTest {
     void withdraw_Fail_InsufficientBalance() {
         // given
         UUID accountId = UUID.randomUUID();
+        User user = User.builder()
+                .isActive(true)
+                .build();
         KRWAccount account = KRWAccount.builder()
                 .id(accountId)
+                .user(user)
+                .accountNumber("UNIT-ACCOUNT")
+                .ownerName("단위테스터")
                 .balance(5000L) // 잔액 5천원
                 .build();
 
