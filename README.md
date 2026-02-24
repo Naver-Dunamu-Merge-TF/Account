@@ -29,3 +29,8 @@ Spring Server which handles basic function that is necessary to Crypto Exchange
 - Tests use in-memory H2 (`src/test/resources/application-test.properties`).
 - Run tests:
   - `./gradlew test`
+
+## Observability
+- Actuator endpoints are enabled for `health`, `info`, and `prometheus`.
+- Prometheus scrape endpoint: `/actuator/prometheus`
+- Health endpoint: `/actuator/health`

@@ -48,3 +48,8 @@ out/
 ### local key files ###
 server/keys/*.pem
 !server/keys/*.pem.example
+
+### local machine artifacts ###
+.DS_Store
+**/.DS_Store
+.gradle-home/
