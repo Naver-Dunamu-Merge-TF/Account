@@ -4,6 +4,7 @@ import com.example.cryptoorder.Account.dto.ErrorResponseDto;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -14,8 +15,9 @@ import java.util.stream.Collectors;
  * 전역 예외 처리 핸들러
  * 모든 컨트롤러에서 발생하는 예외를 일관된 형식으로 처리
  */
-@RestControllerAdvice
-public class GlobalExceptionHandler {
+@Order(1)
+@RestControllerAdvice(basePackages = "com.example.cryptoorder.Account.controller")
+public class AccountGlobalExceptionHandler {
 
     /**
      * 잘못된 인자 예외 처리 (비즈니스 로직 검증 실패)
